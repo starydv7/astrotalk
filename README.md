@@ -1,56 +1,125 @@
-# Welcome to your Expo app 👋
+# AstroTalk
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A premium astrology consultation mobile app built with Expo (SDK 58) and Expo Router.
+Users browse verified astrologers and connect over chat, voice, or video for guidance on
+love, career, finance, health, and life decisions.
 
-## Get started
+## Stack
 
-1. Install dependencies
+- Expo SDK 58, React Native 0.88, React 19
+- Expo Router (file-based, typed routes)
+- TypeScript (strict)
+- Reanimated 4 (voice waveform animation)
+- `expo-linear-gradient`, `@expo/vector-icons` (Ionicons)
+- `expo-secure-store` / `expo-auth-session` installed for the auth layer
 
-   ```bash
-   npm install
-   ```
+The backend API lives in `server/` (Fastify + PostgreSQL) and is a separate package.
 
-2. Start the app
+## Project structure
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```text
+src/
+├── app/                      # Expo Router routes
+│   ├── _layout.tsx           # Root stack + theme/provider setup
+│   ├── index.tsx             # Entry → redirects to welcome
+│   ├── (auth)/               # welcome, onboarding, login, register,
+│   │                         # forgot-password, verify-email
+│   ├── (tabs)/               # Home, Chats, Astrologers, Profile
+│   ├── astrologer/[id].tsx   # Astrologer profile (About/Services/Reviews)
+│   ├── chat/[id].tsx         # Chat conversation
+│   ├── call/[id].tsx         # Voice/video call screen
+│   ├── reviews/[id].tsx      # Ratings & reviews
+│   ├── categories.tsx        # Guidance categories grid
+│   ├── premium.tsx           # Subscription plans
+│   └── profile/              # edit, wallet, privacy, settings,
+│                             # notifications, questions, support
+├── components/
+│   ├── ui/                   # Text, Screen, Card, Button, Input, Avatar,
+│   │                         # Badge, Chip, Rating, SearchBar, EmptyState…
+│   ├── auth/                 # Social buttons, divider
+│   ├── astrology/            # Astrologer card, category tile
+│   ├── brand/                # Logo
+│   └── voice/                # Animated waveform
+├── theme/                    # Design tokens + theme provider
+├── data/                     # SAMPLE directory/profile/conversation data
+├── types/                    # Domain models
+└── utils/                    # Validation + formatting
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+## Design system
 
-### Other setup steps
+All color, spacing, radius, typography, shadow, and motion values are defined in
+`src/theme/tokens.ts` and consumed through `useAppTheme()`. The look is a premium
+midnight-navy base with violet/lavender accents and soft gold for astrology highlights,
+with full light/dark support.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Getting started
 
-## Learn more
+```bash
+npm install
+npx expo start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Then press `a` (Android), `i` (iOS, macOS only), or `w` (web).
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Type checking
 
-## Join the community
+```bash
+npx tsc --noEmit
+```
 
-Join our community of developers creating universal apps.
+### Validate the bundle
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx expo export --platform web
+```
+
+## Android development build
+
+Voice calling relies on native audio and does not run in Expo Go. For voice, build a
+development build:
+
+```bash
+npm install -g eas-cli
+eas login
+eas build --profile development --platform android
+```
+
+Install the resulting build on a physical Android device, then run `npx expo start --dev-client`.
+
+## What is implemented
+
+**UI — fully built and bundle-verified**
+- Onboarding & auth: welcome, onboarding carousel, login, register (with password
+  strength), forgot-password, verify-email.
+- Email/password forms plus Google & Facebook buttons (wired to the backend OAuth broker;
+  see integration points below).
+- Tabs: Home (greeting, search, category chips, promo banner, top astrologers), Chats,
+  Astrologers (search + filters), Profile.
+- Astrologer profile with About/Services/Reviews tabs and Chat/Voice/Video actions.
+- Chat screen with message bubbles, multiline input, keyboard handling.
+- Voice call screen with full call-state lifecycle, animated waveform, and controls.
+- Reviews & ratings with score breakdown and filters.
+- Categories grid, Premium plans, and profile sub-screens (edit, wallet, privacy,
+  settings, notifications, questions, support).
+
+**Sample data**
+Astrologer directory, conversations, and the signed-in user are static sample data in
+`src/data/` (clearly labeled). They drive the UI until the API is connected.
+
+## Backend integration points
+
+Screens contain marked integration points where the API should be called:
+- `POST /v1/auth/login`, `POST /v1/auth/register`, `POST /v1/auth/forgot-password`
+- OAuth: open `GET /v1/auth/oauth/:provider/start` in a browser session, then
+  `POST /v1/auth/oauth/exchange`
+- `PATCH /v1/me/profile`
+- `POST /v1/conversations/:id/messages` (and `/stream`)
+- Voice session start via the backend-signed provider session
+
+## Not yet wired (requires backend + credentials)
+
+- Live API calls (currently sample data)
+- Real Google/Facebook OAuth (needs provider credentials on the backend)
+- Real voice provider session (needs provider credentials + a development build)
+- Store-based subscription billing (prices shown are examples)

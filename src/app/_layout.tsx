@@ -1,18 +1,35 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { Stack } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { AppThemeProvider } from '@/theme/theme-provider';
 
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AppThemeProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'slide_from_right',
+              contentStyle: { backgroundColor: '#0A0B1E' },
+            }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="astrologer/[id]" />
+            <Stack.Screen name="chat/[id]" options={{ animation: 'slide_from_bottom' }} />
+            <Stack.Screen
+              name="call/[id]"
+              options={{ animation: 'fade', gestureEnabled: false }}
+            />
+            <Stack.Screen name="reviews/[id]" />
+            <Stack.Screen name="categories" />
+            <Stack.Screen name="premium" options={{ animation: 'slide_from_bottom' }} />
+          </Stack>
+        </AppThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
