@@ -11,9 +11,9 @@ import { Platform } from 'react-native';
 
 export const palette = {
   // Core brand
-  gold: '#F5B544',
-  goldSoft: '#FFD98A',
-  goldDeep: '#C98A1E',
+  gold: '#E8C47A',
+  goldSoft: '#F6E7C1',
+  goldDeep: '#C6A15A',
 
   violet: '#7C5CFF',
   violetSoft: '#A48BFF',
@@ -21,11 +21,11 @@ export const palette = {
   lavender: '#C9BEFF',
 
   // Midnight / navy surfaces (dark theme)
-  navy900: '#0A0B1E',
-  navy800: '#111233',
-  navy700: '#17193F',
-  navy600: '#1F224F',
-  navy500: '#2A2E63',
+  navy900: '#07060F',
+  navy800: '#100E1C',
+  navy700: '#171428',
+  navy600: '#221C38',
+  navy500: '#2C2648',
 
   // Neutrals
   white: '#FFFFFF',
@@ -95,8 +95,8 @@ const darkScheme: ColorScheme = {
   surfaceElevated: palette.navy600,
   overlay: palette.overlay,
 
-  border: 'rgba(164, 139, 255, 0.14)',
-  borderStrong: 'rgba(164, 139, 255, 0.28)',
+  border: 'rgba(232, 196, 122, 0.16)',
+  borderStrong: 'rgba(232, 196, 122, 0.38)',
 
   text: palette.white,
   textSecondary: palette.slate300,
@@ -202,8 +202,8 @@ export const fontFamily = Platform.select({
 }) as { regular: string; rounded: string; serif: string; mono: string };
 
 export const typography = {
-  display: { fontSize: 34, lineHeight: 40, fontWeight: '800' as const },
-  h1: { fontSize: 28, lineHeight: 34, fontWeight: '700' as const },
+  display: { fontSize: 34, lineHeight: 40, fontWeight: '800' as const, letterSpacing: -0.8 },
+  h1: { fontSize: 28, lineHeight: 34, fontWeight: '700' as const, letterSpacing: -0.5 },
   h2: { fontSize: 22, lineHeight: 28, fontWeight: '700' as const },
   h3: { fontSize: 18, lineHeight: 24, fontWeight: '700' as const },
   title: { fontSize: 16, lineHeight: 22, fontWeight: '600' as const },
@@ -255,9 +255,9 @@ export const motion = {
 
 /** Gradient presets used across hero sections and accent surfaces. */
 export const gradients = {
-  night: ['#0A0B1E', '#141640', '#1C1052'] as const,
-  violet: ['#7C5CFF', '#5B3FD6'] as const,
-  gold: ['#FFD98A', '#F5B544', '#C98A1E'] as const,
-  hero: ['rgba(10,11,30,0)', 'rgba(10,11,30,0.65)', 'rgba(10,11,30,0.98)'] as const,
-  premium: ['#5B3FD6', '#7C5CFF', '#F5B544'] as const,
+  night: ['#07060F', '#140E2C', '#241447'] as const,
+  violet: ['#8B6CFF', '#5B3FD6'] as const,
+  gold: ['#F6E7C1', '#E8C47A', '#C6A15A'] as const,
+  hero: ['rgba(7,6,15,0)', 'rgba(7,6,15,0.55)', 'rgba(7,6,15,0.98)'] as const,
+  premium: ['#2A1B4A', '#6E4BFF', '#E8C47A'] as const,
 };

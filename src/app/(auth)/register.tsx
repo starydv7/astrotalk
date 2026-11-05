@@ -1,16 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { authMessage } from '@/auth/auth-errors';
+import { useAuth } from '@/auth/auth-provider';
 import { AuthDivider } from '@/components/auth/auth-divider';
+import { FormNotice } from '@/components/auth/form-notice';
 import { SocialButtons } from '@/components/auth/social-buttons';
 import { Logo } from '@/components/brand/logo';
 import { BackButton } from '@/components/ui/back-button';
@@ -24,13 +19,15 @@ import { checkPassword, isValidEmail, passwordStrength } from '@/utils/validatio
 export default function RegisterScreen() {
   const theme = useAppTheme();
   const router = useRouter();
+  const { configured, register, signInGoogle } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
+  const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState<'google' | 'facebook' | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const strength = useMemo(() => passwordStrength(password), [password]);
   const strengthLabel = ['Too weak', 'Weak', 'Good', 'Strong'][strength];
@@ -50,30 +47,34 @@ export default function RegisterScreen() {
 
   async function onSubmit() {
     if (!validate()) return;
+    setFormError('');
     setLoading(true);
-    // Backend integration point: POST /v1/auth/register
-    setTimeout(() => {
+    try {
+      await register(name, email, password);
+    } catch (error) {
+      setFormError(authMessage(error));
+    } finally {
       setLoading(false);
-      router.push('/(auth)/verify-email');
-    }, 700);
+    }
   }
 
-  function onSocial(provider: 'google' | 'facebook') {
-    setSocialLoading(provider);
-    setTimeout(() => {
-      setSocialLoading(null);
-      Alert.alert(
-        'Provider setup required',
-        `${provider === 'google' ? 'Google' : 'Facebook'} sign-up needs OAuth credentials configured on the backend before it can complete.`,
-      );
-    }, 900);
+  async function onGoogle() {
+    setFormError('');
+    setGoogleLoading(true);
+    try {
+      await signInGoogle();
+    } catch (error) {
+      setFormError(authMessage(error));
+    } finally {
+      setGoogleLoading(false);
+    }
   }
+
+  const busy = loading || googleLoading;
 
   return (
     <Screen gradient edges={['top', 'bottom', 'left', 'right']}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
@@ -86,9 +87,20 @@ export default function RegisterScreen() {
               Create your account
             </Text>
             <Text variant="body" color="textSecondary">
-              Start with free guidance and upgrade anytime.
+              One account for your chats, your chart, and your guides.
             </Text>
           </View>
+
+          {!configured ? (
+            <FormNotice
+              tone="info"
+              message="Sign-up is not connected yet. Add the Firebase keys to the app settings to turn it on."
+            />
+          ) : null}
+
+          <SocialButtons onGoogle={onGoogle} loading={googleLoading} disabled={busy || !configured} />
+
+          <AuthDivider label="or sign up with email" />
 
           <View style={styles.form}>
             <Input
@@ -97,6 +109,7 @@ export default function RegisterScreen() {
               placeholder="Your name"
               autoCapitalize="words"
               autoComplete="name"
+              textContentType="name"
               value={name}
               onChangeText={setName}
               error={errors.name}
@@ -107,6 +120,7 @@ export default function RegisterScreen() {
               placeholder="you@example.com"
               keyboardType="email-address"
               autoComplete="email"
+              textContentType="emailAddress"
               value={email}
               onChangeText={setEmail}
               error={errors.email}
@@ -117,6 +131,7 @@ export default function RegisterScreen() {
               placeholder="At least 10 characters"
               secure
               autoComplete="password-new"
+              textContentType="newPassword"
               value={password}
               onChangeText={setPassword}
               error={errors.password}
@@ -130,9 +145,7 @@ export default function RegisterScreen() {
                       key={i}
                       style={[
                         styles.strengthBar,
-                        {
-                          backgroundColor: i < strength ? strengthColor : theme.colors.surfaceElevated,
-                        },
+                        { backgroundColor: i < strength ? strengthColor : theme.colors.surfaceElevated },
                       ]}
                     />
                   ))}
@@ -143,31 +156,27 @@ export default function RegisterScreen() {
               </View>
             ) : null}
 
+            {formError ? <FormNotice message={formError} /> : null}
+
             <Button
               label="Create Account"
               variant="gold"
               size="lg"
               loading={loading}
+              disabled={busy || !configured}
               onPress={onSubmit}
             />
 
             <Text variant="small" color="textMuted" center>
-              By continuing you agree to our Terms and Privacy Policy.
+              We will email you a link to confirm your address.
             </Text>
           </View>
-
-          <AuthDivider label="or sign up with" />
-
-          <SocialButtons onPress={onSocial} loadingProvider={socialLoading} />
 
           <View style={styles.footer}>
             <Text variant="caption" color="textSecondary">
               Already have an account?{' '}
             </Text>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => router.replace('/(auth)/login')}
-              hitSlop={8}>
+            <Pressable accessibilityRole="button" onPress={() => router.replace('/(auth)/login')} hitSlop={8}>
               <Text variant="caption" color="accentGold" weight="700">
                 Sign In
               </Text>

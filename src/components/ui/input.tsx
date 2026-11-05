@@ -26,7 +26,7 @@ export function Input({ label, icon, error, secure, style, ...rest }: InputProps
   const borderColor = error
     ? theme.colors.danger
     : focused
-      ? theme.colors.primary
+      ? theme.colors.accentGold
       : theme.colors.border;
 
   return (

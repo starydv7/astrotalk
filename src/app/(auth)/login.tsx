@@ -1,35 +1,30 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { authMessage } from '@/auth/auth-errors';
+import { useAuth } from '@/auth/auth-provider';
+import { AuthDivider } from '@/components/auth/auth-divider';
+import { FormNotice } from '@/components/auth/form-notice';
 import { SocialButtons } from '@/components/auth/social-buttons';
 import { Logo } from '@/components/brand/logo';
+import { BackButton } from '@/components/ui/back-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
-import { AuthDivider } from '@/components/auth/auth-divider';
-import { BackButton } from '@/components/ui/back-button';
 import { isValidEmail } from '@/utils/validation';
-import { useAppTheme } from '@/theme/theme-provider';
 
 export default function LoginScreen() {
-  const theme = useAppTheme();
   const router = useRouter();
+  const { configured, signIn, signInGoogle } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [socialLoading, setSocialLoading] = useState<'google' | 'facebook' | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   function validate() {
     const next: typeof errors = {};
@@ -41,32 +36,34 @@ export default function LoginScreen() {
 
   async function onSubmit() {
     if (!validate()) return;
+    setFormError('');
     setLoading(true);
-    // Backend integration point: POST /v1/auth/login
-    setTimeout(() => {
+    try {
+      await signIn(email, password);
+    } catch (error) {
+      setFormError(authMessage(error));
+    } finally {
       setLoading(false);
-      router.replace('/(tabs)');
-    }, 700);
+    }
   }
 
-  function onSocial(provider: 'google' | 'facebook') {
-    setSocialLoading(provider);
-    // Backend integration point: open GET /v1/auth/oauth/:provider/start in a
-    // browser session, then exchange the returned code via POST /v1/auth/oauth/exchange.
-    setTimeout(() => {
-      setSocialLoading(null);
-      Alert.alert(
-        'Provider setup required',
-        `${provider === 'google' ? 'Google' : 'Facebook'} sign-in needs OAuth credentials configured on the backend before it can complete.`,
-      );
-    }, 900);
+  async function onGoogle() {
+    setFormError('');
+    setGoogleLoading(true);
+    try {
+      await signInGoogle();
+    } catch (error) {
+      setFormError(authMessage(error));
+    } finally {
+      setGoogleLoading(false);
+    }
   }
+
+  const busy = loading || googleLoading;
 
   return (
     <Screen gradient edges={['top', 'bottom', 'left', 'right']}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
@@ -79,9 +76,20 @@ export default function LoginScreen() {
               Welcome back
             </Text>
             <Text variant="body" color="textSecondary">
-              Sign in to continue your guidance journey.
+              Sign in to return to your guides and your chart.
             </Text>
           </View>
+
+          {!configured ? (
+            <FormNotice
+              tone="info"
+              message="Sign-in is not connected yet. Add the Firebase keys to the app settings to turn it on."
+            />
+          ) : null}
+
+          <SocialButtons onGoogle={onGoogle} loading={googleLoading} disabled={busy || !configured} />
+
+          <AuthDivider label="or use email" />
 
           <View style={styles.form}>
             <Input
@@ -90,6 +98,7 @@ export default function LoginScreen() {
               placeholder="you@example.com"
               keyboardType="email-address"
               autoComplete="email"
+              textContentType="emailAddress"
               value={email}
               onChangeText={setEmail}
               error={errors.email}
@@ -100,8 +109,11 @@ export default function LoginScreen() {
               placeholder="Your password"
               secure
               autoComplete="password"
+              textContentType="password"
               value={password}
               onChangeText={setPassword}
+              onSubmitEditing={onSubmit}
+              returnKeyType="go"
               error={errors.password}
             />
 
@@ -115,21 +127,23 @@ export default function LoginScreen() {
               </Text>
             </Pressable>
 
-            <Button label="Sign In" variant="gold" size="lg" loading={loading} onPress={onSubmit} />
+            {formError ? <FormNotice message={formError} /> : null}
+
+            <Button
+              label="Sign In"
+              variant="gold"
+              size="lg"
+              loading={loading}
+              disabled={busy || !configured}
+              onPress={onSubmit}
+            />
           </View>
-
-          <AuthDivider label="or continue with" />
-
-          <SocialButtons onPress={onSocial} loadingProvider={socialLoading} />
 
           <View style={styles.footer}>
             <Text variant="caption" color="textSecondary">
               New to AstroTalk?{' '}
             </Text>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => router.push('/(auth)/register')}
-              hitSlop={8}>
+            <Pressable accessibilityRole="button" onPress={() => router.replace('/(auth)/register')} hitSlop={8}>
               <Text variant="caption" color="accentGold" weight="700">
                 Create account
               </Text>

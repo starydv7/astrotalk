@@ -1,9 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { authMessage } from '@/auth/auth-errors';
+import { useAuth } from '@/auth/auth-provider';
 import { Card } from '@/components/ui/card';
+import { useDialog } from '@/components/ui/dialog-provider';
 import { Screen } from '@/components/ui/screen';
 import { SubHeader } from '@/components/ui/sub-header';
 import { Text } from '@/components/ui/text';
@@ -18,12 +21,45 @@ export default function SettingsScreen() {
 
   const [sound, setSound] = useState(true);
   const [haptics, setHaptics] = useState(true);
+  const { user, usesPassword, resetPassword, deleteAccount } = useAuth();
+  const dialog = useDialog();
 
   const links = [
-    { label: 'Change password', route: '/profile/privacy' },
     { label: 'Privacy & security', route: '/profile/privacy' },
     { label: 'Help & support', route: '/profile/support' },
   ];
+
+  async function onChangePassword() {
+    if (!user?.email) return;
+    try {
+      await resetPassword(user.email);
+      void dialog.alert({
+        title: 'Check your email',
+        message: `A link to set a new password was sent to ${user.email}.`,
+        icon: 'mail-open-outline',
+        tone: 'success',
+      });
+    } catch (error) {
+      void dialog.alert({ title: 'Could not send', message: authMessage(error), tone: 'danger' });
+    }
+  }
+
+  async function onDelete() {
+    const ok = await dialog.confirm({
+      title: 'Delete your account?',
+      message: 'This permanently removes your account and profile. It cannot be undone.',
+      icon: 'trash-outline',
+      tone: 'danger',
+      confirmLabel: 'Delete forever',
+      cancelLabel: 'Keep my account',
+    });
+    if (!ok) return;
+    try {
+      await deleteAccount();
+    } catch (error) {
+      void dialog.alert({ title: 'Could not delete account', message: authMessage(error), tone: 'danger' });
+    }
+  }
 
   return (
     <Screen edges={['top']}>
@@ -44,6 +80,19 @@ export default function SettingsScreen() {
           Account
         </Text>
         <Card padded={false}>
+          {usesPassword ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => void onChangePassword()}
+              style={({ pressed }) => [
+                styles.link,
+                { borderBottomColor: theme.colors.border, borderBottomWidth: StyleSheet.hairlineWidth },
+                pressed ? { opacity: 0.7 } : null,
+              ]}>
+              <Text variant="body">Change password</Text>
+              <Ionicons name="mail-outline" size={18} color={theme.colors.textMuted} />
+            </Pressable>
+          ) : null}
           {links.map((l, i) => (
             <Pressable
               key={l.label}
@@ -64,12 +113,7 @@ export default function SettingsScreen() {
 
         <Pressable
           accessibilityRole="button"
-          onPress={() =>
-            Alert.alert('Delete account', 'This permanently removes your account and data.', [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Delete', style: 'destructive' },
-            ])
-          }
+          onPress={() => void onDelete()}
           style={styles.delete}>
           <Text variant="bodyStrong" color="danger">
             Delete account

@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
@@ -30,7 +30,11 @@ export function CategoryTile({ category, onPress }: CategoryTileProps) {
         pressed ? styles.pressed : null,
       ]}>
       <View style={[styles.iconWrap, { backgroundColor: tone.bg }]}>
-        <Ionicons name={category.icon as keyof typeof Ionicons.glyphMap} size={24} color={tone.fg} />
+        <MaterialCommunityIcons
+          name={category.icon as keyof typeof MaterialCommunityIcons.glyphMap}
+          size={24}
+          color={tone.fg}
+        />
       </View>
       <Text variant="bodyStrong" numberOfLines={2} style={styles.title}>
         {category.title}

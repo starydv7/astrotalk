@@ -1,5 +1,4 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import { useColorScheme } from 'react-native';
 
 import {
   gradients,
@@ -26,13 +25,12 @@ export type AppTheme = {
 const ThemeContext = createContext<AppTheme | null>(null);
 
 export function AppThemeProvider({ children }: { children: ReactNode }) {
-  const scheme = useColorScheme();
-  const mode: 'light' | 'dark' = scheme === 'light' ? 'light' : 'dark';
+  const mode = 'dark' as const;
 
   const value = useMemo<AppTheme>(
     () => ({
       mode,
-      colors: schemes[mode],
+      colors: schemes.dark,
       spacing,
       radius,
       typography,
@@ -40,7 +38,7 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
       motion,
       gradients,
     }),
-    [mode],
+    [],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

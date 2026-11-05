@@ -44,11 +44,12 @@ export default function PremiumScreen() {
           <LinearGradient colors={theme.gradients.gold} style={styles.crown}>
             <Ionicons name="diamond" size={36} color="#1A1206" />
           </LinearGradient>
+          <Text style={styles.eyebrow}>MEMBERSHIP</Text>
           <Text variant="display" center>
-            AstroTalk Premium
+            Private Circle
           </Text>
           <Text variant="body" color="textSecondary" center>
-            Deeper guidance, better rates, and priority access.
+            Priority guides, quieter rates, and a chart that is prepared before you arrive.
           </Text>
         </View>
 
@@ -112,7 +113,7 @@ export default function PremiumScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
         <Button
-          label="Start Premium"
+          label="Enter the Circle"
           variant="gold"
           size="lg"
           onPress={() => router.back()}
@@ -129,6 +130,13 @@ export default function PremiumScreen() {
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 8 },
   hero: { alignItems: 'center', gap: 10, marginTop: 8, marginBottom: 24 },
+  eyebrow: {
+    color: '#E8C47A',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 2.4,
+    marginBottom: 4,
+  },
   crown: {
     width: 80,
     height: 80,

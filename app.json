@@ -6,25 +6,23 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "astrotalk",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#07060F",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
+      "bundleIdentifier": "com.starydv7.astrotalk",
       "supportsTablet": true,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "AstroTalk uses your microphone for voice consultations with astrologers."
+        "NSPhotoLibraryUsageDescription": "AstroTalk uses your photos so you can send a picture in a live chat."
       }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#07060F",
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "monochromeImage": "./assets/images/adaptive-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": [
-        "RECORD_AUDIO"
-      ],
       "package": "com.starydv7.astrotalk"
     },
     "web": {
@@ -36,16 +34,34 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0A0B1E",
+          "backgroundColor": "#07060F",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 220
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "AstroTalk uses your photos so you can send a picture in a live chat.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "f201589b-8f08-4d77-a889-ad087c37f549"
+      }
     }
   }
 }

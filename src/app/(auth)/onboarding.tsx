@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Dimensions, FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ const SLIDES = [
   {
     icon: 'chatbubbles' as const,
     title: 'Talk to real astrologers',
-    body: 'Connect over chat, voice or video with trusted, verified astrologers whenever you need clarity.',
+    body: 'Request a live chat with a guide. You can send text and a photo, and the conversation is deleted after 24 hours.',
   },
   {
     icon: 'sparkles' as const,
@@ -35,10 +35,10 @@ export default function OnboardingScreen() {
   const [index, setIndex] = useState(0);
   const listRef = useRef<FlatList>(null);
 
-  const onViewable = useRef((info: { viewableItems: { index?: number | null }[] }) => {
+  const onViewable = useCallback((info: { viewableItems: { index?: number | null }[] }) => {
     const first = info.viewableItems[0];
     if (first?.index != null) setIndex(first.index);
-  }).current;
+  }, []);
 
   function next() {
     if (index < SLIDES.length - 1) {

@@ -1,9 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
-import { useAppTheme } from '@/theme/theme-provider';
 
 type LogoProps = {
   size?: 'sm' | 'md' | 'lg';
@@ -11,26 +9,26 @@ type LogoProps = {
 };
 
 const marks = {
-  sm: { badge: 28, icon: 16, text: 'h3' as const },
-  md: { badge: 36, icon: 20, text: 'h2' as const },
-  lg: { badge: 48, icon: 26, text: 'h1' as const },
+  sm: { badge: 36, text: 'h3' as const },
+  md: { badge: 44, text: 'h2' as const },
+  lg: { badge: 64, text: 'h1' as const },
 };
 
 export function Logo({ size = 'md', showWordmark = true }: LogoProps) {
-  const theme = useAppTheme();
   const m = marks[size];
 
   return (
     <View style={styles.row}>
-      <LinearGradient
-        colors={theme.gradients.gold}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.badge, { width: m.badge, height: m.badge, borderRadius: m.badge / 2 }]}>
-        <Ionicons name="sparkles" size={m.icon} color="#1A1206" />
-      </LinearGradient>
+      <View style={[styles.ring, { borderRadius: m.badge }]}>
+        <Image
+          source={require('../../../assets/images/icon.png')}
+          style={{ width: m.badge, height: m.badge, borderRadius: m.badge / 2 }}
+          contentFit="cover"
+          accessibilityLabel="AstroTalk"
+        />
+      </View>
       {showWordmark ? (
-        <Text variant={m.text}>
+        <Text variant={m.text} style={styles.word}>
           Astro<Text variant={m.text} color="accentGold">Talk</Text>
         </Text>
       ) : null}
@@ -40,5 +38,10 @@ export function Logo({ size = 'md', showWordmark = true }: LogoProps) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  badge: { alignItems: 'center', justifyContent: 'center' },
+  ring: {
+    borderWidth: 1,
+    borderColor: 'rgba(232, 196, 122, 0.55)',
+    padding: 1,
+  },
+  word: { letterSpacing: -0.4 },
 });

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Card } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Text } from '@/components/ui/text';
 import { useAppTheme } from '@/theme/theme-provider';
 
 const FAQS = [
-  { q: 'How do consultations work?', a: 'Pick an astrologer and start a chat, voice or video session. You are charged per minute from your wallet balance.' },
+  { q: 'How do consultations work?', a: 'Choose a pandit or maulana and request a live chat. The conversation starts when they accept, within the waiting time shown. You can send text and photos. The chat is deleted after 24 hours.' },
   { q: 'Is my conversation private?', a: 'Yes. You control what is saved in Privacy & Security, and you can delete your data anytime.' },
   { q: 'How do I add money?', a: 'Open Wallet & Payments and choose a top-up amount. Card details are never stored on your device.' },
 ];

@@ -3,8 +3,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { CosmicBackdrop } from '@/components/brand/cosmic-backdrop';
 import { Logo } from '@/components/brand/logo';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
@@ -15,8 +17,9 @@ export default function WelcomeScreen() {
   const router = useRouter();
 
   return (
-    <LinearGradient colors={['#0A0B1E', '#1A1142', '#2A1458']} style={styles.flex}>
+    <View style={styles.flex}>
       <StatusBar style="light" />
+      <CosmicBackdrop rich />
       <SafeAreaView style={styles.flex}>
         <View style={styles.top}>
           <Logo size="md" />
@@ -52,9 +55,9 @@ export default function WelcomeScreen() {
           </View>
         </View>
 
-        <View style={styles.bottom}>
+        <Animated.View entering={FadeInDown.duration(640).delay(80)} style={styles.bottom}>
           <Text variant="display" center>
-            Life's Questions
+            Life&apos;s Questions
           </Text>
           <Text variant="display" color="accentGold" center>
             Find Clear Answers
@@ -85,9 +88,9 @@ export default function WelcomeScreen() {
               Sign In
             </Text>
           </Pressable>
-        </View>
+        </Animated.View>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 

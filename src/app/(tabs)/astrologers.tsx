@@ -4,20 +4,24 @@ import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AstrologerCard } from '@/components/astrology/astrologer-card';
+import { TraditionMark } from '@/components/astrology/tradition-mark';
 import { Chip } from '@/components/ui/chip';
+import { PageHeader } from '@/components/ui/page-header';
 import { Screen } from '@/components/ui/screen';
 import { SearchBar } from '@/components/ui/search-bar';
-import { Text } from '@/components/ui/text';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ASTROLOGERS } from '@/data/astrologers';
+import { useDesk } from '@/state/use-desk';
 import type { Astrologer } from '@/types/domain';
 
 const FILTERS = [
   { id: 'all', label: 'All' },
-  { id: 'online', label: 'Online' },
-  { id: 'love', label: 'Love' },
+  { id: 'vedic', label: 'Pandits' },
+  { id: 'islamic', label: 'Maulanas' },
+  { id: 'protection', label: 'Protection' },
+  { id: 'marriage', label: 'Marriage' },
   { id: 'career', label: 'Career' },
-  { id: 'finance', label: 'Finance' },
+  { id: 'love', label: 'Love' },
 ] as const;
 
 type FilterId = (typeof FILTERS)[number]['id'];
@@ -28,8 +32,11 @@ export default function AstrologersScreen() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<FilterId>('all');
 
+  const desk = useDesk();
+  const online = desk?.online ?? true;
+
   const data = useMemo<Astrologer[]>(() => {
-    return ASTROLOGERS.filter((a) => {
+    return ASTROLOGERS.map((a) => ({ ...a, online })).filter((a) => {
       const matchesQuery =
         query.trim().length === 0 ||
         a.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -37,20 +44,22 @@ export default function AstrologersScreen() {
       const matchesFilter =
         filter === 'all'
           ? true
-          : filter === 'online'
-            ? a.online
+          : filter === 'vedic' || filter === 'islamic'
+            ? a.tradition === filter
             : a.skills.includes(filter);
       return matchesQuery && matchesFilter;
     });
-  }, [query, filter]);
+  }, [query, filter, online]);
 
   return (
     <Screen>
-      <View style={styles.header}>
-        <Text variant="h2">Astrologers</Text>
-      </View>
+      <PageHeader
+        eyebrow="THE CIRCLE"
+        title="Our Experts"
+        subtitle="Pandits and maulanas, one private chat away"
+      />
       <View style={styles.searchWrap}>
-        <SearchBar value={query} onChangeText={setQuery} placeholder="Search astrologers..." />
+        <SearchBar value={query} onChangeText={setQuery} placeholder="Search pandits, maulanas, topics..." />
       </View>
 
       <ScrollView
@@ -63,6 +72,7 @@ export default function AstrologersScreen() {
             label={f.label}
             active={filter === f.id}
             onPress={() => setFilter(f.id)}
+            leading={(color) => <TraditionMark tradition={f.id} size={13} color={color} />}
           />
         ))}
       </ScrollView>
@@ -70,13 +80,13 @@ export default function AstrologersScreen() {
       <FlatList
         data={data}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 24 }]}
+        contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 120 }]}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         ListEmptyComponent={
           <EmptyState
             icon="search"
-            title="No astrologers found"
+            title="No experts found"
             message="Try a different search or filter."
           />
         }
@@ -89,8 +99,7 @@ export default function AstrologersScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: 20, paddingTop: 8 },
-  searchWrap: { paddingHorizontal: 20, marginTop: 12 },
+  searchWrap: { paddingHorizontal: 20, marginTop: 14 },
   filters: { paddingHorizontal: 20, paddingVertical: 16, gap: 8 },
   list: { paddingHorizontal: 20 },
 });

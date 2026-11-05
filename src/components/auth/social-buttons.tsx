@@ -1,60 +1,57 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 
 import { Text } from '@/components/ui/text';
 import { useAppTheme } from '@/theme/theme-provider';
-
-type Provider = 'google' | 'facebook';
+import { tap } from '@/utils/haptics';
 
 type SocialButtonsProps = {
-  onPress: (provider: Provider) => void;
-  loadingProvider?: Provider | null;
+  onGoogle: () => void;
+  loading?: boolean;
+  disabled?: boolean;
 };
 
-export function SocialButtons({ onPress, loadingProvider }: SocialButtonsProps) {
+export function SocialButtons({ onGoogle, loading = false, disabled = false }: SocialButtonsProps) {
   const theme = useAppTheme();
 
-  const items: { provider: Provider; label: string; icon: keyof typeof Ionicons.glyphMap; color: string }[] = [
-    { provider: 'google', label: 'Continue with Google', icon: 'logo-google', color: '#EA4335' },
-    { provider: 'facebook', label: 'Continue with Facebook', icon: 'logo-facebook', color: '#1877F2' },
-  ];
-
   return (
-    <View style={styles.wrap}>
-      {items.map((item) => (
-        <Pressable
-          key={item.provider}
-          accessibilityRole="button"
-          accessibilityLabel={item.label}
-          disabled={!!loadingProvider}
-          onPress={() => onPress(item.provider)}
-          style={({ pressed }) => [
-            styles.btn,
-            {
-              backgroundColor: theme.colors.surfaceAlt,
-              borderColor: theme.colors.border,
-              borderRadius: theme.radius.pill,
-              opacity: loadingProvider && loadingProvider !== item.provider ? 0.5 : pressed ? 0.85 : 1,
-            },
-          ]}>
-          <Ionicons name={item.icon} size={20} color={item.color} />
-          <Text variant="bodyStrong">
-            {loadingProvider === item.provider ? 'Connecting…' : item.label}
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Continue with Google"
+      disabled={loading || disabled}
+      onPress={() => {
+        tap();
+        onGoogle();
+      }}
+      style={({ pressed }) => [
+        styles.btn,
+        {
+          backgroundColor: '#F6F3EC',
+          borderRadius: theme.radius.pill,
+          opacity: disabled ? 0.5 : pressed ? 0.85 : 1,
+        },
+      ]}>
+      {loading ? (
+        <ActivityIndicator color="#1A140C" />
+      ) : (
+        <>
+          <Ionicons name="logo-google" size={20} color="#EA4335" />
+          <Text variant="bodyStrong" style={styles.label}>
+            Continue with Google
           </Text>
-        </Pressable>
-      ))}
-    </View>
+        </>
+      )}
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: 12 },
   btn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    height: 52,
-    borderWidth: 1,
+    height: 54,
   },
+  label: { color: '#1A140C' },
 });

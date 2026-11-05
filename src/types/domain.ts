@@ -20,10 +20,14 @@ export type GuidanceCategory = {
   tone: 'love' | 'career' | 'finance' | 'health' | 'family' | 'spirit' | 'education' | 'property';
 };
 
+export type Tradition = 'vedic' | 'islamic';
+
 export type Astrologer = {
   id: string;
   name: string;
-  avatarUrl: string;
+  /** Bundled portrait, from `require()`. */
+  photo?: number;
+  tradition: Tradition;
   specialty: string;
   skills: string[];
   experienceYears: number;

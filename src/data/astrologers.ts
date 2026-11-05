@@ -1,103 +1,95 @@
 import type { Astrologer, Review, ServiceOffering } from '@/types/domain';
 
 /**
- * SAMPLE astrologer directory used to build and demonstrate the UI.
- * Replace with the `/v1` API once the backend directory endpoints are wired.
- * Avatars use deterministic placeholder portraits.
+ * Experts customers can chat with. All of them are answered by the pandit
+ * account; their ids must match the list in `firestore.rules`.
  */
-function portrait(seed: string) {
-  return `https://i.pravatar.cc/300?u=${encodeURIComponent(seed)}`;
-}
-
 export const ASTROLOGERS: Astrologer[] = [
   {
-    id: 'acharya-sharma',
-    name: 'Acharya Sharma',
-    avatarUrl: portrait('acharya-sharma'),
-    specialty: 'Vedic Astrology',
-    skills: ['career', 'finance', 'love'],
-    experienceYears: 12,
-    rating: 4.8,
-    reviewCount: 2300,
-    pricePerMinute: 49,
-    online: true,
-    languages: ['English', 'Hindi'],
-    about:
-      'Specializing in Vedic Astrology, Kundli, Career, Marriage, Finance and Life Guidance. Offers simple and practical remedies for a better future.',
-    consultations: 18400,
-    verified: true,
-  },
-  {
-    id: 'priya-verma',
-    name: 'Priya Verma',
-    avatarUrl: portrait('priya-verma'),
-    specialty: 'Love & Relationship',
-    skills: ['love', 'marriage'],
-    experienceYears: 8,
-    rating: 4.7,
-    reviewCount: 1800,
-    pricePerMinute: 39,
-    online: true,
-    languages: ['English', 'Hindi'],
-    about:
-      'Compassionate relationship guide focused on love, compatibility and emotional clarity. Helps you understand patterns and move forward with confidence.',
-    consultations: 12100,
-    verified: true,
-  },
-  {
-    id: 'rohit-joshi',
-    name: 'Rohit Joshi',
-    avatarUrl: portrait('rohit-joshi'),
-    specialty: 'Career & Finance',
-    skills: ['career', 'finance'],
-    experienceYears: 10,
+    id: 'pandit-raghav',
+    name: 'Pandit Raghav Shastri',
+    photo: require('@/assets/images/experts/pandit-raghav.jpg'),
+    tradition: 'vedic',
+    specialty: 'Vedic Astrology & Kundli',
+    skills: ['career', 'finance', 'marriage'],
+    experienceYears: 18,
     rating: 4.9,
-    reviewCount: 2100,
-    pricePerMinute: 45,
-    online: false,
-    languages: ['English', 'Marathi'],
+    reviewCount: 1240,
+    pricePerMinute: 49,
+    online: true,
+    languages: ['Hindi', 'English'],
     about:
-      'Career and finance strategist blending astrology with practical planning. Clear guidance on timing, decisions and growth.',
-    consultations: 15600,
+      'Vedic astrologer reading Kundli for career, finance, marriage and life decisions. Clear answers and simple, practical remedies.',
+    consultations: 9600,
     verified: true,
   },
   {
-    id: 'sneha-kapoor',
-    name: 'Sneha Kapoor',
-    avatarUrl: portrait('sneha-kapoor'),
-    specialty: 'Tarot Reading',
-    skills: ['love', 'spirituality'],
-    experienceYears: 6,
-    rating: 4.6,
-    reviewCount: 1300,
+    id: 'pandit-devesh',
+    name: 'Pandit Devesh Mishra',
+    photo: require('@/assets/images/experts/pandit-devesh.jpg'),
+    tradition: 'vedic',
+    specialty: 'Love, Marriage & Remedies',
+    skills: ['love', 'marriage', 'spirituality'],
+    experienceYears: 14,
+    rating: 4.8,
+    reviewCount: 980,
     pricePerMinute: 39,
     online: true,
-    languages: ['English'],
+    languages: ['Hindi', 'English'],
     about:
-      'Intuitive tarot reader helping you reflect on choices, relationships and personal growth with warmth and honesty.',
-    consultations: 9800,
-    verified: false,
+      'Guidance on love, relationships, marriage matching and family harmony, with remedies rooted in Vedic tradition.',
+    consultations: 7200,
+    verified: true,
   },
   {
-    id: 'vikram-pandit',
-    name: 'Vikram Pandit',
-    avatarUrl: portrait('vikram-pandit'),
-    specialty: 'Numerology',
-    skills: ['career', 'finance', 'spirituality'],
-    experienceYears: 14,
-    rating: 4.7,
-    reviewCount: 1900,
-    pricePerMinute: 49,
+    id: 'maulana-imran',
+    name: 'Maulana Imran Qadri',
+    photo: require('@/assets/images/experts/maulana-imran.jpg'),
+    tradition: 'islamic',
+    specialty: 'Islamic Guidance & Istikhara',
+    skills: ['marriage', 'family', 'spirituality'],
+    experienceYears: 22,
+    rating: 4.9,
+    reviewCount: 860,
+    pricePerMinute: 39,
     online: true,
-    languages: ['English', 'Hindi', 'Gujarati'],
+    languages: ['Urdu', 'Hindi', 'English'],
     about:
-      'Numerologist guiding life decisions through numbers, timing and alignment. Focused on clarity and actionable next steps.',
-    consultations: 20300,
+      'Islamic scholar offering guidance on marriage, family matters, Istikhara and daily duas, rooted in the Quran and Sunnah.',
+    consultations: 6400,
+    verified: true,
+  },
+  {
+    id: 'maulana-abdul',
+    name: 'Hafiz Abdul Rehman',
+    photo: require('@/assets/images/experts/maulana-abdul.jpg'),
+    tradition: 'islamic',
+    specialty: 'Ruqyah & Spiritual Protection',
+    skills: ['protection', 'family', 'spirituality'],
+    experienceYears: 15,
+    rating: 4.8,
+    reviewCount: 640,
+    pricePerMinute: 39,
+    online: true,
+    languages: ['Urdu', 'Hindi'],
+    about:
+      'Hafiz-e-Quran guiding you through Ruqyah Shariah, protection duas and spiritual cleansing for yourself and your home.',
+    consultations: 4800,
     verified: true,
   },
 ];
 
-export const SERVICES: ServiceOffering[] = [
+export const PANDITS = ASTROLOGERS.filter((a) => a.tradition === 'vedic');
+export const MAULANAS = ASTROLOGERS.filter((a) => a.tradition === 'islamic');
+
+/** What customers call this expert in running text, e.g. "the maulana accepts…". */
+export function expertNoun(expert?: Astrologer) {
+  if (expert?.tradition === 'islamic') return 'maulana';
+  if (expert?.tradition === 'vedic') return 'pandit';
+  return 'expert';
+}
+
+const VEDIC_SERVICES: ServiceOffering[] = [
   { id: 'vedic', icon: 'planet', title: 'Vedic Astrology' },
   { id: 'kundli', icon: 'document-text', title: 'Kundli Analysis' },
   { id: 'career', icon: 'trending-up', title: 'Career Guidance' },
@@ -105,6 +97,29 @@ export const SERVICES: ServiceOffering[] = [
   { id: 'finance', icon: 'cash', title: 'Financial Growth' },
   { id: 'health', icon: 'fitness', title: 'Health & Wellness' },
 ];
+
+const ISLAMIC_SERVICES: ServiceOffering[] = [
+  { id: 'istikhara', icon: 'compass', title: 'Istikhara' },
+  { id: 'ruqyah', icon: 'shield-checkmark', title: 'Ruqyah Shariah' },
+  { id: 'marriage', icon: 'heart', title: 'Marriage Guidance' },
+  { id: 'family', icon: 'people', title: 'Family Harmony' },
+  { id: 'duas', icon: 'book', title: 'Daily Duas' },
+  { id: 'protection', icon: 'home', title: 'Home Protection' },
+];
+
+const GENERAL_SERVICES: ServiceOffering[] = [
+  { id: 'career', icon: 'trending-up', title: 'Career Guidance' },
+  { id: 'marriage', icon: 'heart', title: 'Relationships' },
+  { id: 'family', icon: 'people', title: 'Family Harmony' },
+  { id: 'health', icon: 'fitness', title: 'Wellbeing' },
+];
+
+/** Services listed on an expert's profile, matched to their tradition. */
+export function servicesFor(expert?: Astrologer): ServiceOffering[] {
+  if (expert?.tradition === 'vedic') return VEDIC_SERVICES;
+  if (expert?.tradition === 'islamic') return ISLAMIC_SERVICES;
+  return GENERAL_SERVICES;
+}
 
 export const REVIEWS: Review[] = [
   {
@@ -152,24 +167,3 @@ export const RATING_BREAKDOWN = [
 export function getAstrologer(id: string): Astrologer | undefined {
   return ASTROLOGERS.find((a) => a.id === id);
 }
-
-export const SAMPLE_CHAT = [
-  {
-    id: 'm1',
-    role: 'astrologer' as const,
-    text: 'Namaste! How can I help you today? You can ask anything about your life, career, relationships or any other concern.',
-    time: '10:24 AM',
-  },
-  {
-    id: 'm2',
-    role: 'user' as const,
-    text: 'I want to know about my career growth and best time for a job change.',
-    time: '10:25 AM',
-  },
-  {
-    id: 'm3',
-    role: 'astrologer' as const,
-    text: 'Sure, I will read your Kundli and share detailed guidance shortly. Please share your date, time and place of birth.',
-    time: '10:26 AM',
-  },
-];

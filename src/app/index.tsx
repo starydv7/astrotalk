@@ -1,10 +1,11 @@
 import { Redirect } from 'expo-router';
 
-/**
- * App entry. For now we route to the onboarding/welcome screen.
- * Once auth session restore is wired, this becomes the gate that
- * redirects authenticated users straight to the tabs.
- */
+import { useAuth } from '@/auth/auth-provider';
+
 export default function Index() {
-  return <Redirect href="/(auth)/welcome" />;
+  const { user, verified } = useAuth();
+
+  if (!user) return <Redirect href="/(auth)/welcome" />;
+  if (!verified) return <Redirect href="/verify-email" />;
+  return <Redirect href="/(tabs)" />;
 }

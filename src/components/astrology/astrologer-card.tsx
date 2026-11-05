@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { TraditionBadge } from '@/components/astrology/tradition-mark';
 import { Avatar } from '@/components/ui/avatar';
 import { Rating } from '@/components/ui/rating';
 import { Text } from '@/components/ui/text';
@@ -34,7 +35,7 @@ export function AstrologerCard({ astrologer, onPress, layout = 'row' }: Astrolog
           },
           pressed ? styles.pressed : null,
         ]}>
-        <Avatar uri={astrologer.avatarUrl} name={astrologer.name} size={64} online={astrologer.online} />
+        <Avatar uri={astrologer.photo} name={astrologer.name} size={64} online={astrologer.online} />
         <Text variant="bodyStrong" numberOfLines={1} style={styles.tileName}>
           {astrologer.name}
         </Text>
@@ -43,7 +44,7 @@ export function AstrologerCard({ astrologer, onPress, layout = 'row' }: Astrolog
         </Text>
         <Rating value={astrologer.rating} size={12} showValue />
         <Text variant="caption" color="accentGold" weight="700">
-          {formatCurrency(astrologer.pricePerMinute)}/min
+          {formatCurrency(astrologer.pricePerMinute)} chat
         </Text>
       </Pressable>
     );
@@ -58,12 +59,12 @@ export function AstrologerCard({ astrologer, onPress, layout = 'row' }: Astrolog
         styles.row,
         {
           backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.border,
+          borderColor: astrologer.online ? 'rgba(52, 199, 123, 0.35)' : theme.colors.border,
           borderRadius: theme.radius.xl,
         },
         pressed ? styles.pressed : null,
       ]}>
-      <Avatar uri={astrologer.avatarUrl} name={astrologer.name} size={56} online={astrologer.online} />
+      <Avatar uri={astrologer.photo} name={astrologer.name} size={64} online={astrologer.online} ring />
       <View style={styles.info}>
         <View style={styles.nameRow}>
           <Text variant="bodyStrong" numberOfLines={1}>
@@ -76,6 +77,7 @@ export function AstrologerCard({ astrologer, onPress, layout = 'row' }: Astrolog
         <Text variant="small" color="textMuted" numberOfLines={1}>
           {astrologer.specialty}
         </Text>
+        <TraditionBadge tradition={astrologer.tradition} compact />
         <View style={styles.metaRow}>
           <Rating value={astrologer.rating} reviews={astrologer.reviewCount} size={12} />
         </View>
@@ -106,7 +108,7 @@ export function AstrologerCard({ astrologer, onPress, layout = 'row' }: Astrolog
         </Pressable>
         <View style={[styles.pricePill, { backgroundColor: theme.colors.accentGoldSoft }]}>
           <Text variant="caption" color="accentGold" weight="700">
-            {formatCurrency(astrologer.pricePerMinute)}/min
+            {formatCurrency(astrologer.pricePerMinute)} chat
           </Text>
         </View>
       </View>
@@ -127,7 +129,7 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: 'row', alignItems: 'center' },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 },
   statusDot: { width: 7, height: 7, borderRadius: 4 },
-  right: { alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, height: 56 },
+  right: { alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, height: 64 },
   pricePill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   tile: {
     width: 150,

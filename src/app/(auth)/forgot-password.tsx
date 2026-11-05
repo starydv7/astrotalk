@@ -3,6 +3,9 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 
+import { authMessage } from '@/auth/auth-errors';
+import { useAuth } from '@/auth/auth-provider';
+import { FormNotice } from '@/components/auth/form-notice';
 import { BackButton } from '@/components/ui/back-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,8 +17,10 @@ import { isValidEmail } from '@/utils/validation';
 export default function ForgotPasswordScreen() {
   const theme = useAppTheme();
   const router = useRouter();
+  const { resetPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string>();
+  const [formError, setFormError] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -25,12 +30,16 @@ export default function ForgotPasswordScreen() {
       return;
     }
     setError(undefined);
+    setFormError('');
     setLoading(true);
-    // Backend integration point: POST /v1/auth/forgot-password (always generic response)
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await resetPassword(email);
       setSent(true);
-    }, 700);
+    } catch (err) {
+      setFormError(authMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -50,7 +59,7 @@ export default function ForgotPasswordScreen() {
                 Check your email
               </Text>
               <Text variant="body" color="textSecondary" center>
-                If an account exists for {email}, we have sent instructions to reset your password.
+                If an account exists for {email}, a reset link is on its way. Check spam if it does not arrive.
               </Text>
               <Button
                 label="Back to Sign In"
@@ -77,6 +86,7 @@ export default function ForgotPasswordScreen() {
                 onChangeText={setEmail}
                 error={error}
               />
+              {formError ? <FormNotice message={formError} /> : null}
               <Button
                 label="Send reset link"
                 variant="gold"

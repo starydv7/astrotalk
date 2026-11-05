@@ -1,11 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAuth } from '@/auth/auth-provider';
 import { Avatar } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
+import { useDialog } from '@/components/ui/dialog-provider';
+import { PageHeader } from '@/components/ui/page-header';
 import { Screen } from '@/components/ui/screen';
 import { Text } from '@/components/ui/text';
 import { DEMO_USER } from '@/data/profile';
@@ -34,46 +37,56 @@ export default function ProfileScreen() {
   const theme = useAppTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const user = DEMO_USER;
+  const { user, profile, displayName, isPandit, signOut } = useAuth();
+  const dialog = useDialog();
 
-  function onLogout() {
-    Alert.alert('Log out', 'Are you sure you want to log out?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Log out',
-        style: 'destructive',
-        onPress: () => router.replace('/(auth)/welcome'),
-      },
-    ]);
+  async function onLogout() {
+    const ok = await dialog.confirm({
+      title: 'Log out?',
+      message: 'You can sign back in anytime with the same account.',
+      icon: 'log-out-outline',
+      tone: 'danger',
+      confirmLabel: 'Log out',
+      cancelLabel: 'Stay signed in',
+    });
+    if (ok) void signOut();
   }
 
   return (
     <Screen>
       <ScrollView
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 128 }}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text variant="h2">Profile</Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Edit profile"
-            hitSlop={8}
-            onPress={() => router.push('/profile/edit')}
-            style={[styles.iconBtn, { backgroundColor: theme.colors.surfaceAlt }]}>
-            <Ionicons name="create-outline" size={20} color={theme.colors.text} />
-          </Pressable>
-        </View>
+        <PageHeader
+          eyebrow="YOUR ATLAS"
+          title="Profile"
+          right={
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Edit profile"
+              hitSlop={8}
+              onPress={() => router.push('/profile/edit')}
+              style={[styles.iconBtn, { backgroundColor: theme.colors.surfaceAlt, borderColor: theme.colors.border, borderWidth: StyleSheet.hairlineWidth }]}>
+              <Ionicons name="create-outline" size={20} color={theme.colors.accentGold} />
+            </Pressable>
+          }
+        />
 
         {/* User card */}
         <Card style={styles.userCard} onPress={() => router.push('/profile/edit')} elevated>
-          <Avatar uri={user.avatarUrl} name={user.name} size={64} ring />
+          <Avatar uri={user?.photoURL} name={displayName} size={64} ring />
           <View style={styles.userInfo}>
             <Text variant="h3" numberOfLines={1}>
-              {user.name}
+              {displayName}
             </Text>
-            <Text variant="caption" color="textMuted">
-              {user.phone ?? user.email}
+            <Text variant="caption" color="textMuted" numberOfLines={1}>
+              {user?.email ?? profile.phone}
             </Text>
+            {profile.topics.length > 0 ? (
+              <Text variant="small" color="accentGold" numberOfLines={1}>
+                {profile.topics.join(' · ')}
+              </Text>
+            ) : null}
           </View>
           <Ionicons name="chevron-forward" size={20} color={theme.colors.textMuted} />
         </Card>
@@ -88,7 +101,7 @@ export default function ProfileScreen() {
               <Text variant="small" color="textMuted">
                 Wallet balance
               </Text>
-              <Text variant="h3">{formatCurrency(user.walletBalance)}</Text>
+              <Text variant="h3">{formatCurrency(DEMO_USER.walletBalance)}</Text>
             </View>
           </View>
           <View style={[styles.addBtn, { backgroundColor: theme.colors.primary }]}>
@@ -97,6 +110,22 @@ export default function ProfileScreen() {
             </Text>
           </View>
         </Card>
+
+        {isPandit ? (
+          <Card style={styles.menu} onPress={() => router.push('/(tabs)/chats')}>
+            <View style={styles.walletLeft}>
+              <View style={[styles.walletIcon, { backgroundColor: theme.colors.accentGoldSoft }]}>
+                <Ionicons name="sparkles" size={20} color={theme.colors.accentGold} />
+              </View>
+              <View style={styles.userInfo}>
+                <Text variant="bodyStrong">Pandit desk</Text>
+                <Text variant="small" color="textMuted">
+                  You answer chats for every pandit and maulana. Open requests, go online, set the waiting time.
+                </Text>
+              </View>
+            </View>
+          </Card>
+        ) : null}
 
         {/* Menu */}
         <Card style={styles.menu} padded={false}>
@@ -138,10 +167,10 @@ export default function ProfileScreen() {
             <Ionicons name="diamond" size={28} color="#FFFFFF" />
             <View style={styles.premiumText}>
               <Text variant="title" style={{ color: '#FFFFFF' }}>
-                Get Premium
+                Private Circle
               </Text>
               <Text variant="small" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                Unlimited chats, lower rates and exclusive astrologers
+                Priority guides, quieter rates, charts prepared for you
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
@@ -150,7 +179,7 @@ export default function ProfileScreen() {
 
         <Pressable
           accessibilityRole="button"
-          onPress={onLogout}
+          onPress={() => void onLogout()}
           style={({ pressed }) => [
             styles.logout,
             { borderColor: theme.colors.border },
@@ -163,7 +192,7 @@ export default function ProfileScreen() {
         </Pressable>
 
         <Text variant="small" color="textMuted" center style={styles.version}>
-          AstroTalk v1.0.0
+          AstroTalk · Private Circle
         </Text>
       </ScrollView>
     </Screen>
@@ -171,13 +200,6 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 8,
-  },
   iconBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   userCard: {
     marginHorizontal: 20,

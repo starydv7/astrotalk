@@ -1,11 +1,13 @@
 import { Image } from 'expo-image';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
 import { useAppTheme } from '@/theme/theme-provider';
 
 type AvatarProps = {
-  uri?: string | null;
+  /** Remote URL or bundled `require()` image. */
+  uri?: string | number | null;
   name?: string;
   size?: number;
   online?: boolean;
@@ -21,6 +23,8 @@ function initials(name?: string) {
 export function Avatar({ uri, name, size = 48, online, ring }: AvatarProps) {
   const theme = useAppTheme();
   const dotSize = Math.max(10, Math.round(size * 0.26));
+  const [failedUri, setFailedUri] = useState<AvatarProps['uri']>(null);
+  const showImage = !!uri && failedUri !== uri;
 
   return (
     <View style={{ width: size, height: size }}>
@@ -36,12 +40,13 @@ export function Avatar({ uri, name, size = 48, online, ring }: AvatarProps) {
             borderColor: ring ? theme.colors.accentGold : theme.colors.border,
           },
         ]}>
-        {uri ? (
+        {showImage ? (
           <Image
-            source={{ uri }}
+            source={typeof uri === 'number' ? uri : { uri }}
             style={{ width: size, height: size, borderRadius: size / 2 }}
             contentFit="cover"
             transition={200}
+            onError={() => setFailedUri(uri)}
           />
         ) : (
           <Text variant="title" color="textSecondary" style={{ fontSize: size * 0.36 }}>
